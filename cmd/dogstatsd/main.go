@@ -12,8 +12,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/segmentio/stats"
-	"github.com/segmentio/stats/datadog"
+	"github.com/sniperkit/stats"
+	"github.com/sniperkit/stats/datadog"
 )
 
 func main() {

@@ -1,4 +1,4 @@
-# stats [![CircleCI](https://circleci.com/gh/segmentio/stats.svg?style=shield)](https://circleci.com/gh/segmentio/stats) [![Go Report Card](https://goreportcard.com/badge/github.com/segmentio/stats)](https://goreportcard.com/report/github.com/segmentio/stats) [![GoDoc](https://godoc.org/github.com/segmentio/stats?status.svg)](https://godoc.org/github.com/segmentio/stats)
+# stats [![CircleCI](https://circleci.com/gh/segmentio/stats.svg?style=shield)](https://circleci.com/gh/segmentio/stats) [![Go Report Card](https://goreportcard.com/badge/github.com/sniperkit/stats)](https://goreportcard.com/report/github.com/sniperkit/stats) [![GoDoc](https://godoc.org/github.com/sniperkit/stats?status.svg)](https://godoc.org/github.com/sniperkit/stats)
 
 A Go package for abstracting stats collection.
 
@@ -6,7 +6,7 @@ Installation
 ------------
 
 ```
-go get github.com/segmentio/stats
+go get github.com/sniperkit/stats
 ```
 
 Migration to v4
@@ -101,8 +101,8 @@ collection platforms.
 package main
 
 import (
-    "github.com/segmentio/stats"
-    "github.com/segmentio/stats/datadog"
+    "github.com/sniperkit/stats"
+    "github.com/sniperkit/stats/datadog"
 )
 
 func main() {
@@ -123,17 +123,17 @@ func main() {
 
 ### Metrics
 
-- [Gauges](https://godoc.org/github.com/segmentio/stats#Gauge)
-- [Counters](https://godoc.org/github.com/segmentio/stats#Counter)
-- [Histograms](https://godoc.org/github.com/segmentio/stats#Histogram)
-- [Timers](https://godoc.org/github.com/segmentio/stats#Timer)
+- [Gauges](https://godoc.org/github.com/sniperkit/stats#Gauge)
+- [Counters](https://godoc.org/github.com/sniperkit/stats#Counter)
+- [Histograms](https://godoc.org/github.com/sniperkit/stats#Histogram)
+- [Timers](https://godoc.org/github.com/sniperkit/stats#Timer)
 
 ```go
 package main
 
 import (
-    "github.com/segmentio/stats"
-    "github.com/segmentio/stats/datadog"
+    "github.com/sniperkit/stats"
+    "github.com/sniperkit/stats/datadog"
 )
 
 func main() {
@@ -156,7 +156,7 @@ Monitoring
 
 ### Processes
 
-The [github.com/segmentio/stats/httpstats](https://godoc.org/github.com/segmentio/stats/procstats)
+The [github.com/sniperkit/stats/httpstats](https://godoc.org/github.com/sniperkit/stats/procstats)
 exposes an API for creating stats collector on local processes. Stats are
 collected for current the process and metrics like goroutines count or memory
 usage are reported.
@@ -166,8 +166,8 @@ Here's an example of how to use the collector:
 package main
 
 import (
-    "github.com/segmentio/stats/datadog"
-    "github.com/segmentio/stats/procstats"
+    "github.com/sniperkit/stats/datadog"
+    "github.com/sniperkit/stats/procstats"
 )
 
 
@@ -187,7 +187,7 @@ func main() {
 
 ### HTTP Servers
 
-The [github.com/segmentio/stats/httpstats](https://godoc.org/github.com/segmentio/stats/httpstats)
+The [github.com/sniperkit/stats/httpstats](https://godoc.org/github.com/sniperkit/stats/httpstats)
 package exposes a decorator of `http.Handler` that automatically adds metric
 colleciton to a HTTP handler, reporting things like request processing time,
 error counters, header and body sizes...
@@ -199,8 +199,8 @@ package main
 import (
     "net/http"
 
-    "github.com/segmentio/stats/datadog"
-    "github.com/segmentio/stats/httpstats"
+    "github.com/sniperkit/stats/datadog"
+    "github.com/sniperkit/stats/httpstats"
 )
 
 func main() {
@@ -221,7 +221,7 @@ func main() {
 
 ### HTTP Clients
 
-The [github.com/segmentio/stats/httpstats](https://godoc.org/github.com/segmentio/stats/httpstats)
+The [github.com/sniperkit/stats/httpstats](https://godoc.org/github.com/sniperkit/stats/httpstats)
 package exposes a decorator of `http.RoundTripper` which collects and reports
 metrics for client requests the same way it's done on the server side.
 
@@ -232,8 +232,8 @@ package main
 import (
     "net/http"
 
-    "github.com/segmentio/stats/datadog"
-    "github.com/segmentio/stats/httpstats"
+    "github.com/sniperkit/stats/datadog"
+    "github.com/sniperkit/stats/httpstats"
 )
 
 func main() {
@@ -260,8 +260,8 @@ package main
 import (
     "net/http"
 
-    "github.com/segmentio/stats/datadog"
-    "github.com/segmentio/stats/httpstats"
+    "github.com/sniperkit/stats/datadog"
+    "github.com/sniperkit/stats/httpstats"
 )
 
 func main() {
@@ -277,7 +277,7 @@ func main() {
 
 ### Redis
 
-The [github.com/segmentio/stats/redisstats](https://godoc.org/github.com/segmentio/stats/redisstats)
+The [github.com/sniperkit/stats/redisstats](https://godoc.org/github.com/sniperkit/stats/redisstats)
 package exposes:
 
 * a decorator of
@@ -293,7 +293,7 @@ package main
 
 import (
     "github.com/segmentio/redis-go"
-    "github.com/segmentio/stats/redisstats"
+    "github.com/sniperkit/stats/redisstats"
 )
 
 func main() {
@@ -316,7 +316,7 @@ package main
 
 import (
     "github.com/segmentio/redis-go"
-    "github.com/segmentio/stats/redisstats"
+    "github.com/sniperkit/stats/redisstats"
 )
 
 func main() {

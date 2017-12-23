@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/segmentio/stats"
-	"github.com/segmentio/stats/statstest"
+	"github.com/sniperkit/stats"
+	"github.com/sniperkit/stats/statstest"
 )
 
 func TestMultiHandler(t *testing.T) {

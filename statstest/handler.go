@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/segmentio/stats"
+	"github.com/sniperkit/stats"
 )
 
 var _ stats.Handler = (*Handler)(nil)
