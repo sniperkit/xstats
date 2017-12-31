@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/sniperkit/stats"
-	"github.com/sniperkit/stats/statstest"
+	"github.com/sniperkit/stats/tests"
 )
 
 func TestBaseConn(t *testing.T) {

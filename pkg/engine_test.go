@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/sniperkit/stats"
-	"github.com/sniperkit/stats/datadog"
-	"github.com/sniperkit/stats/influxdb"
-	"github.com/sniperkit/stats/prometheus"
-	"github.com/sniperkit/stats/statstest"
+	"github.com/sniperkit/stats/backend/datadog"
+	"github.com/sniperkit/stats/backend/influxdb"
+	"github.com/sniperkit/stats/backend/prometheus"
+	"github.com/sniperkit/stats/tests"
 )
 
 func TestEngine(t *testing.T) {

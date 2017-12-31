@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/sniperkit/stats/collectors/iostats"
+	"github.com/sniperkit/stats/collector/iostats"
 )
 
 func TestResponseStatusBucket(t *testing.T) {

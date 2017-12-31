@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/sniperkit/stats"
-	"github.com/sniperkit/stats/backend/datadog"
+	"github.com/sniperkit/stats/backend/influxdb"
 )
 
 func main() {
@@ -34,7 +34,7 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprint(os.Stderr, `usage: dogstatsd [command] [arguments...]
+	fmt.Fprint(os.Stderr, `usage: influxd [command] [arguments...]
 
 commands:
  - add
@@ -48,7 +48,7 @@ commands:
 }
 
 func client(cmd string, args ...string) {
-	var fset = flag.NewFlagSet("dogstatsd "+cmd+" [options...] metric value [-- args...]", flag.ExitOnError)
+	var fset = flag.NewFlagSet("influxd "+cmd+" [options...] metric value [-- args...]", flag.ExitOnError)
 	var extra []string
 	var tags tags
 	var addr string
@@ -57,7 +57,7 @@ func client(cmd string, args ...string) {
 	var err error
 
 	args, extra = split(args, "--")
-	fset.StringVar(&addr, "addr", "localhost:8125", "The network address where a dogstatsd server is listening for incoming UDP datagrams")
+	fset.StringVar(&addr, "addr", "localhost:8125", "The network address where a influxd server is listening for incoming UDP datagrams")
 	fset.Var(&tags, "tags", "A comma-separated list of tags to set on the metric")
 	fset.Parse(args)
 	args = fset.Args()
@@ -88,7 +88,7 @@ func client(cmd string, args ...string) {
 		}
 	}
 
-	dd := datadog.NewClient(addr)
+	dd := influxdb.NewClient(addr)
 	defer dd.Close()
 
 	switch cmd {
@@ -113,7 +113,7 @@ func server(args ...string) {
 	fset.Parse(args)
 	log.Printf("listening for incoming UDP datagram on %s", bind)
 
-	datadog.ListenAndServe(bind, datadog.HandlerFunc(func(metric datadog.Metric, from net.Addr) {
+	influxdb.ListenAndServe(bind, influxdb.HandlerFunc(func(metric influxdb.Metric, from net.Addr) {
 		log.Print(metric)
 	}))
 }

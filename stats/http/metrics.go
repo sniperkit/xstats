@@ -1,6 +1,7 @@
 package httpstats
 
 import (
+	"fmt"
 	"io"
 	"math"
 	"net/http"
@@ -10,6 +11,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-http-utils/headers"
+	"github.com/sniperkit/logger"
 	"github.com/sniperkit/stats"
 )
 
@@ -56,11 +59,11 @@ func init() {
 
 type nullBody struct{}
 
-func (n *nullBody) Close() error { return nil }
-
+func (n *nullBody) Close() error               { return nil }
 func (n *nullBody) Read(b []byte) (int, error) { return 0, io.EOF }
 
 type requestBody struct {
+	debug   bool
 	body    io.ReadCloser
 	eng     *stats.Engine
 	req     *http.Request
@@ -68,15 +71,31 @@ type requestBody struct {
 	bytes   int
 	op      string
 	once    sync.Once
+	ct      *string
 }
 
 func (r *requestBody) Close() (err error) {
-	err = r.body.Close()
+	if r.debug {
+		stats.Log.Entry.InfoWithFields(logger.Fields{
+			"r.req.Header.Status":       r.req.Header.Get("Status"),
+			"r.req.Header.Content-Type": r.req.Header.Get("Content-Type"),
+			"r.req.Header.X-From-Cache": r.req.Header.Get("X-From-Cache"),
+		}, "requestBody.Close()")
+	}
+
+	// err = r.body.Close()
 	r.close()
 	return
 }
-
 func (r *requestBody) Read(b []byte) (n int, err error) {
+	if r.debug {
+		stats.Log.Entry.InfoWithFields(logger.Fields{
+			"r.req.Header.Status":       r.req.Header.Get("Status"),
+			"r.req.Header.Content-Type": r.req.Header.Get("Content-Type"),
+			"r.req.Header.X-From-Cache": r.req.Header.Get("X-From-Cache"),
+		}, "requestBody.Read()")
+	}
+
 	if n, err = r.body.Read(b); n > 0 {
 		r.bytes += n
 	}
@@ -84,31 +103,57 @@ func (r *requestBody) Read(b []byte) (n int, err error) {
 }
 
 func (r *requestBody) close() {
+	if r.debug {
+		stats.Log.Entry.InfoWithFields(logger.Fields{
+			"r.req.Header.Status":       r.req.Header.Get("Status"),
+			"r.req.Header.Content-Type": r.req.Header.Get("Content-Type"),
+			"r.req.Header.X-From-Cache": r.req.Header.Get("X-From-Cache"),
+		}, "requestBody.close()")
+	}
 	r.once.Do(r.complete)
 }
-
 func (r *requestBody) complete() {
+	if r.debug {
+		stats.Log.Entry.InfoWithFields(logger.Fields{
+			"r.req.Header.Status":       r.req.Header.Get("Status"),
+			"r.req.Header.Content-Type": r.req.Header.Get("Content-Type"),
+			"r.req.Header.X-From-Cache": r.req.Header.Get("X-From-Cache"),
+		}, "requestBody.complete()")
+	}
 	r.metrics.observeRequest(r.req, r.op, r.bytes)
 }
 
 type responseBody struct {
+	debug   bool
 	eng     *stats.Engine
 	res     *http.Response
 	metrics *metrics
-	body    io.ReadCloser
+	body    io.ReadCloser // io.ReadCloser // io.ReadCloser
 	bytes   int
 	op      string
+	err     error
 	start   time.Time
+	end     time.Time
 	once    sync.Once
+	ct      *string
 }
 
 func (r *responseBody) Close() (err error) {
-	err = r.body.Close()
+
+	stats.Log.Entry.WarningWithFields(logger.Fields{"resp.ContentType": *r.ct}, "httpstats.responseBody.Close()")
+	// err = r.body.Close()
+	// r.err = err
+	stats.Log.Entry.WarningWithFields(logger.Fields{"resp.error": err}, "httpstats.responseBody.Close()")
 	r.close()
 	return
 }
 
 func (r *responseBody) Read(b []byte) (n int, err error) {
+	if r.ct == nil {
+		contentType, _ := parseContentType(r.res.Header.Get("Content-Type"))
+		r.ct = &contentType
+	}
+
 	if n, err = r.body.Read(b); n > 0 {
 		r.bytes += n
 	}
@@ -120,6 +165,7 @@ func (r *responseBody) close() {
 }
 
 func (r *responseBody) complete() {
+	r.end = time.Now()
 	r.metrics.observeResponse(r.res, r.op, r.bytes, time.Now().Sub(r.start))
 	r.eng.ReportAt(r.start, r.metrics)
 }
@@ -131,6 +177,8 @@ type metrics struct {
 		} `metric:"error"`
 
 		req struct {
+			url url.URL // `metric:"-"`
+			uri string  // `metric:"-"`
 			msg struct {
 				count       int `metric:"count"        type:"counter"`
 				headerSize  int `metric:"header.size"  type:"histogram"`
@@ -143,7 +191,10 @@ type metrics struct {
 		}
 
 		res struct {
-			rtt time.Duration `metric:"rtt.seconds" type:"histogram"`
+			startTime time.Time     // `metric:"-"`
+			endTime   time.Time     // `metric:"-"`
+			err       error         // `metric:"-"`
+			rtt       time.Duration `metric:"rtt.seconds" type:"histogram"`
 
 			msg struct {
 				count       int `metric:"count"        type:"counter"`
@@ -162,6 +213,7 @@ type metrics struct {
 			server           string `tag:"http_res_server"`
 			statusBucket     string `tag:"http_res_status_bucket"`
 			status           string `tag:"http_res_status"`
+			statusCode       int    // `tag:"http_res_status_code"`
 			transferEncoding string `tag:"http_res_transfer_encoding"`
 			upgrade          string `tag:"http_res_upgrade"`
 		}
@@ -187,6 +239,10 @@ func (m *metrics) observeRequest(req *http.Request, op string, bodyLen int) {
 	m.http.req.msg.headerSize = len(req.Header)
 	m.http.req.msg.headerBytes = requestHeaderLength(req)
 	m.http.req.msg.bodyBytes = bodyLen
+	if req.URL != nil {
+		m.http.req.url = *req.URL
+	}
+	m.http.req.uri = req.RequestURI
 
 	m.http.req.operation = op
 	m.http.req.msgtype = "request"
@@ -232,13 +288,62 @@ func (m *metrics) observeResponse(res *http.Response, op string, bodyLen int, rt
 	m.http.res.server = server
 	m.http.res.statusBucket = bucket
 	m.http.res.status = status
+	m.http.res.statusCode = res.StatusCode
 	m.http.res.transferEncoding = transferEncoding
 	m.http.res.upgrade = upgrade
+	// m.http.res.err = m.err
+
 }
 
 func (m *metrics) observeError(rtt time.Duration) {
 	m.http.err.count = 1
 	m.http.res.rtt = rtt
+}
+
+func (m *metrics) ConsoleLog() string {
+	return fmt.Sprintf("#%03d: %03d %9s %15s %20s",
+		1,
+		m.StatusCode(),
+		fmt.Sprintf("%d", m.Size()),
+		fmt.Sprintf("%f ms", m.ResponseTime().Seconds()*1000),
+		m.http.req.url.String(),
+	)
+}
+
+func (m metrics) Error() error {
+	return m.http.res.err
+}
+
+func (m metrics) URL() url.URL {
+	return m.http.req.url
+}
+
+func (m metrics) Size() int {
+	return m.http.res.msg.headerSize + m.http.res.msg.bodyBytes
+}
+
+func (m metrics) Status() string {
+	return m.http.res.status
+}
+
+func (m metrics) StatusCode() int {
+	return m.http.res.statusCode
+}
+
+func (m metrics) StartTime() time.Time {
+	return m.http.res.startTime
+}
+
+func (m metrics) EndTime() time.Time {
+	return m.http.res.endTime
+}
+
+func (m metrics) ResponseTime() time.Duration {
+	return m.http.res.rtt
+}
+
+func (m metrics) ContentType() string {
+	return m.http.res.contentType
 }
 
 func requestHeaderLength(req *http.Request) int {
@@ -249,11 +354,9 @@ func requestHeaderLength(req *http.Request) int {
 		len(" ") +
 		len(req.Proto) +
 		len("\r\n")
-
 	if _, ok := req.Header["User-Agent"]; !ok {
 		n += len("User-Agent: Go-http-client/1.1\r\n")
 	}
-
 	n += len("Host: ") + len(req.Host) + len("\r\n")
 	return n
 }
@@ -266,23 +369,19 @@ func responseHeaderLength(res *http.Response) int {
 		len(" ") +
 		len(http.StatusText(res.StatusCode)) +
 		len("\r\n")
-
 	if _, ok := res.Header["Connection"]; !ok {
 		n += len("Connection: close\r\n")
 	}
-
 	return n
 }
 
 func headerLength(h http.Header) int {
 	n := 0
-
 	for name, values := range h {
 		for _, v := range values {
 			n += len(name) + len(": ") + len(v) + len("\r\n")
 		}
 	}
-
 	return n + len("\r\n")
 }
 
@@ -396,6 +495,10 @@ func headerValue(header http.Header, name string) string {
 		return ""
 	}
 	return values[0]
+}
+
+func headerNormalize(name string) string {
+	return headers.Normalize(name)
 }
 
 // statusCode behaves like strconv.Itoa but uses a lookup table to avoid having

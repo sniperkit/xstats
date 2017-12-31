@@ -8,7 +8,7 @@ import (
 
 	"github.com/segmentio/redis-go"
 	"github.com/sniperkit/stats"
-	"github.com/sniperkit/stats/statstest"
+	"github.com/sniperkit/stats/tests"
 )
 
 func TestHandler(t *testing.T) {

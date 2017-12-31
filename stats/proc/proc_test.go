@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/sniperkit/stats"
-	"github.com/sniperkit/stats/statstest"
+	"github.com/sniperkit/stats/tests"
 )
 
 func TestProcMetrics(t *testing.T) {

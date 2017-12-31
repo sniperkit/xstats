@@ -1,0 +1,36 @@
+package: github.com/sniperkit/xstats
+import:
+- package: github.com/go-http-utils/headers
+- package: github.com/google/go-github
+  subpackages:
+  - github
+- package: github.com/roscopecoltran/sniperkit-agent
+  subpackages:
+  - utils
+- package: github.com/segmentio/fasthash
+  subpackages:
+  - jody
+- package: github.com/segmentio/objconv
+  subpackages:
+  - json
+  - resp
+- package: github.com/segmentio/redis-go
+- package: github.com/segmentio/stats
+  subpackages:
+  - httpstats
+- package: github.com/sniperkit/cacher
+  subpackages:
+  - backends/badger
+- package: github.com/sniperkit/logger
+  subpackages:
+  - backends/gomol
+  - backends/logrus
+  - backends/zap
+- package: github.com/sniperkit/stats
+  subpackages:
+  - backend/datadog
+  - backend/influxdb
+  - backend/promotheus
+  - collectors/procstats/linux
+  - grafana
+- package: golang.org/x/oauth2

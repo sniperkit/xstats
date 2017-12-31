@@ -6,18 +6,26 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/sniperkit/logger"
 	"github.com/sniperkit/stats"
 )
 
 // NewHandler wraps h to produce metrics on the default engine for every request
 // received and every response sent.
 func NewHandler(h http.Handler) http.Handler {
+	stats.Log.Entry.InfoWithFields(logger.Fields{
+		"http.Handler": h != nil,
+	}, "stats.collector.httpstats.NewHandler()")
 	return NewHandlerWith(stats.DefaultEngine, h)
 }
 
 // NewHandlerWith wraps h to produce metrics on eng for every request received
 // and every response sent.
 func NewHandlerWith(eng *stats.Engine, h http.Handler) http.Handler {
+	stats.Log.Entry.InfoWithFields(logger.Fields{
+		"http.Handler": h != nil,
+		"stats.Engine": eng != nil,
+	}, "stats.collector.httpstats.NewHandlerWith()")
 	return &handler{
 		handler: h,
 		eng:     eng,
@@ -49,6 +57,10 @@ func (h *handler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		op:      "read",
 	}
 	defer b.close()
+	stats.Log.Entry.InfoWithFields(logger.Fields{
+		"requestBody":    b != nil,
+		"responseWriter": w != nil,
+	}, "stats.collector.httpstats.handler.ServeHTTP()")
 
 	req.Body = b
 	h.handler.ServeHTTP(w, req)
@@ -119,4 +131,10 @@ func (w *responseWriter) complete() {
 
 	w.metrics.observeResponse(res, "write", w.bytes, now.Sub(w.start))
 	w.eng.ReportAt(w.start, w.metrics)
+
+	stats.Log.Entry.DebugWithFields(logger.Fields{
+		"w.metrics": w.metrics,
+		"w.start":   w.start,
+	}, "stats.collector.httpstats.responseWriter.complete()")
+
 }
