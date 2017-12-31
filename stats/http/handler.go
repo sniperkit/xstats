@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sniperkit/logger"
-	"github.com/sniperkit/stats"
+	"github.com/sniperkit/xlogger/pkg"
+	"github.com/sniperkit/xstats/pkg"
 )
 
 // NewHandler wraps h to produce metrics on the default engine for every request

@@ -4,10 +4,10 @@ import (
 	"errors"
 
 	// loggers
-	"github.com/sniperkit/logger"
-	"github.com/sniperkit/logger/backends/gomol"
-	"github.com/sniperkit/logger/backends/logrus"
-	"github.com/sniperkit/logger/backends/zap"
+	"github.com/sniperkit/xlogger/backend/gomol"
+	"github.com/sniperkit/xlogger/backend/logrus"
+	"github.com/sniperkit/xlogger/backend/zap"
+	"github.com/sniperkit/xlogger/pkg"
 )
 
 const (

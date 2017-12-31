@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sniperkit/stats"
+	"github.com/sniperkit/xstats/pkg"
 	// "github.com/jamiealquiza/tachymeter"
 )
 

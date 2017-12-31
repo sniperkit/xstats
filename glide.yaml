@@ -21,7 +21,7 @@ import:
 - package: github.com/sniperkit/cacher
   subpackages:
   - backends/badger
-- package: github.com/sniperkit/logger
+- package: github.com/sniperkit/xlogger
   subpackages:
   - backends/gomol
   - backends/logrus

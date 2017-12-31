@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sniperkit/logger"
-	"github.com/sniperkit/stats"
+	"github.com/sniperkit/xlogger/pkg"
+	"github.com/sniperkit/xstats/pkg"
 )
 
 // NewTransport wraps t to produce metrics on the default engine for every request sent and every response received.

@@ -12,8 +12,9 @@ import (
 	"time"
 
 	"github.com/go-http-utils/headers"
-	"github.com/sniperkit/logger"
-	"github.com/sniperkit/stats"
+
+	"github.com/sniperkit/xlogger/pkg"
+	"github.com/sniperkit/xstats/pkg"
 )
 
 func init() {
